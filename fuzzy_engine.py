@@ -44,12 +44,17 @@ class Criterion:
 
     @property
     def mf_params(self) -> dict[str, list[float]]:
-        """Parameter trimf [a, b, c] untuk Rendah/Sedang/Tinggi."""
-        lo, mid, hi = self.vmin, self.mid, self.vmax
+        """Parameter trapmf [a, b, c, d] untuk Rendah/Sedang/Tinggi.
+
+        Bentuk trapesium: dua himpunan ujung berbentuk bahu (shoulder) ber-plato,
+        himpunan tengah trapesium. Bersinggungan (crossing) di μ=0,5.
+        """
+        lo, hi = self.vmin, self.vmax
+        s = hi - lo
         return {
-            "Rendah": [lo, lo, mid],
-            "Sedang": [lo, mid, hi],
-            "Tinggi": [mid, hi, hi],
+            "Rendah": [lo, lo, lo + 0.20 * s, lo + 0.40 * s],
+            "Sedang": [lo + 0.20 * s, lo + 0.40 * s, lo + 0.60 * s, lo + 0.80 * s],
+            "Tinggi": [lo + 0.60 * s, lo + 0.80 * s, hi, hi],
         }
 
 
@@ -111,14 +116,14 @@ def load_dataset(cfg: DatasetConfig, base_dir) -> pd.DataFrame:
 def membership_curves(crit: Criterion, n: int = 200):
     """Kembalikan (semesta x, dict{label: derajat}) untuk plot kurva keanggotaan."""
     x = np.linspace(crit.vmin, crit.vmax, n)
-    curves = {lbl: fuzz.trimf(x, p) for lbl, p in crit.mf_params.items()}
+    curves = {lbl: fuzz.trapmf(x, p) for lbl, p in crit.mf_params.items()}
     return x, curves
 
 
 def membership_degree(crit: Criterion, value: float) -> dict[str, float]:
     """Derajat keanggotaan satu nilai pada tiap himpunan (untuk penanda titik)."""
     return {
-        lbl: float(fuzz.trimf(np.array([value]), p)[0])
+        lbl: float(fuzz.trapmf(np.array([value]), p)[0])
         for lbl, p in crit.mf_params.items()
     }
 
@@ -129,7 +134,7 @@ def membership_degree(crit: Criterion, value: float) -> dict[str, float]:
 def _fuzzify_column(crit: Criterion, values: np.ndarray) -> dict[str, np.ndarray]:
     """Vektor derajat keanggotaan Rendah/Sedang/Tinggi untuk seluruh baris."""
     vals = np.clip(values.astype(float), crit.vmin, crit.vmax)
-    return {lbl: fuzz.trimf(vals, p) for lbl, p in crit.mf_params.items()}
+    return {lbl: fuzz.trapmf(vals, p) for lbl, p in crit.mf_params.items()}
 
 
 def _defuzzify(crit: Criterion, memb: dict[str, np.ndarray]) -> np.ndarray:
