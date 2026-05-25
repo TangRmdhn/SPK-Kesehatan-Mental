@@ -1,5 +1,5 @@
-# Claude
-.claude
+# Local tooling & agent folders (tidak ikut di-commit)
+.claude/
 
 # Python
 __pycache__/
