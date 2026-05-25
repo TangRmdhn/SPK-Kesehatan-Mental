@@ -149,6 +149,25 @@ def base_layout(fig, h=360, legend_top=True):
     return fig
 
 
+def membership_figure(crit, value=None, value_label=None):
+    """Plot kurva keanggotaan trapesium satu kriteria (+ penanda nilai opsional)."""
+    x, curves = membership_curves(crit)
+    cmap = {"Rendah": C["rendah"], "Sedang": C["sedang"], "Tinggi": C["tinggi"]}
+    fillmap = {"Rendah": "rgba(138,177,125,.12)", "Sedang": "rgba(233,196,106,.12)",
+               "Tinggi": "rgba(231,111,81,.12)"}
+    fig = go.Figure()
+    for lbl, y in curves.items():
+        fig.add_trace(go.Scatter(x=x, y=y, name=lbl, mode="lines",
+                                 line=dict(color=cmap[lbl], width=2.6),
+                                 fill="tozeroy", fillcolor=fillmap[lbl]))
+    if value is not None:
+        fig.add_vline(x=value, line_dash="dash", line_color=C["ink"],
+                      annotation_text=(value_label or f"{value:g}"))
+    fig.update_layout(yaxis_title="Derajat keanggotaan μ", xaxis_title=crit.label,
+                      yaxis_range=[0, 1.06])
+    return base_layout(fig, 380)
+
+
 # --------------------------------------------------------------------------- #
 # Sidebar
 # --------------------------------------------------------------------------- #
@@ -164,7 +183,7 @@ with st.sidebar:
     st.markdown(f"**Dataset**  \n`{cfg.file}`")
     st.caption(f"{len(cfg.criteria)} kriteria SPK")
     st.divider()
-    st.caption("Metode Fuzzy-SAW: fuzzifikasi segitiga → "
+    st.caption("Metode Fuzzy-SAW: fuzzifikasi trapesium → "
                "defuzzifikasi centroid → agregasi bobot → perangkingan.")
 
 df = _load(ds_name)
@@ -221,8 +240,8 @@ def page_data():
     # --- Visualisasi ---
     st.write("")
     section("Analisis Visual")
-    t1, t2, t3, t4 = st.tabs(["Distribusi Kriteria", "Korelasi", "Sebaran",
-                              "Komposisi Target"])
+    t1, t2, t3, t4, t5 = st.tabs(["Distribusi Kriteria", "Korelasi", "Sebaran",
+                                  "Komposisi Target", "Fungsi Keanggotaan"])
 
     with t1:
         a, b = st.columns([1, 3])
@@ -271,6 +290,18 @@ def page_data():
             st.caption("Distribusi label target asli dataset (bukan hasil SPK).")
         else:
             st.info("Dataset ini tidak memiliki kolom label target.")
+
+    with t5:
+        a, b = st.columns([1, 3])
+        mk = a.selectbox("Kriteria", crit_keys, key="mf_data",
+                         format_func=lambda k: next((c.label for c in cfg.criteria if c.key == k), k))
+        crit = next(c for c in cfg.criteria if c.key == mk)
+        a.caption(f"Himpunan fuzzy **trapesium**: Rendah · Sedang · Tinggi. "
+                  f"Arah kriteria: **{crit.direction}** "
+                  f"({'tinggi → prioritas' if crit.direction == 'benefit' else 'rendah → prioritas'}).")
+        a.caption("Inilah dasar fuzzifikasi: tiap nilai dipetakan ke derajat "
+                  "keanggotaan tiap himpunan.")
+        b.plotly_chart(membership_figure(crit), width="stretch")
 
 
 # =========================================================================== #
@@ -396,21 +427,9 @@ def page_spk():
                          format_func=lambda k: next((c.label for c in cfg.criteria if c.key == k), k))
         sid = b.selectbox("Soroti mahasiswa", ids_top)
         crit = next(c for c in cfg.criteria if c.key == ck)
-        x, curves = membership_curves(crit)
-        fig = go.Figure()
-        cmap = {"Rendah": C["rendah"], "Sedang": C["sedang"], "Tinggi": C["tinggi"]}
-        fillmap = {"Rendah": "rgba(138,177,125,.12)", "Sedang": "rgba(233,196,106,.12)",
-                   "Tinggi": "rgba(231,111,81,.12)"}
-        for lbl, y in curves.items():
-            fig.add_trace(go.Scatter(x=x, y=y, name=lbl, mode="lines",
-                                     line=dict(color=cmap[lbl], width=2.5),
-                                     fill="tozeroy", fillcolor=fillmap[lbl]))
         val = float(ranking.loc[ranking["ID Mahasiswa"] == sid, crit.label].iloc[0])
         deg = membership_degree(crit, val)
-        fig.add_vline(x=val, line_dash="dash", line_color=C["ink"],
-                      annotation_text=f"{sid} = {val:g}")
-        fig.update_layout(yaxis_title="Derajat keanggotaan μ", xaxis_title=crit.label)
-        st.plotly_chart(base_layout(fig, 380), width="stretch")
+        st.plotly_chart(membership_figure(crit, val, f"{sid} = {val:g}"), width="stretch")
         deg_txt = " · ".join(f"{k}: **{v:.2f}**" for k, v in deg.items())
         st.caption(f"Derajat keanggotaan {sid} pada {crit.label} → {deg_txt}  "
                    f"(arah **{crit.direction}**)")
