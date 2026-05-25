@@ -1,0 +1,30 @@
+# Claude
+.claude
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual env
+.venv/
+venv/
+
+# uv
+.uv/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build / temp
+build/
+dist/
+*.log
+tes.exe

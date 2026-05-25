@@ -1,0 +1,14 @@
+[project]
+name = "spk-kesehatan-mental"
+version = "0.1.0"
+description = "SPK Pemilihan Prioritas Penanganan Kesehatan Mental Mahasiswa (Fuzzy MADM / SAW)"
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.2",
+    "pandas>=3.0.1",
+    "plotly>=6.7.0",
+    "scikit-fuzzy>=0.5.0",
+    "scipy>=1.17.1",
+    "streamlit>=1.57.0",
+]
