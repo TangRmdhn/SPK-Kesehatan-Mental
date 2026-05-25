@@ -8,7 +8,8 @@ kecemasan, tekanan akademik, kualitas tidur, dan faktor pendukung lainnya.
   → agregasi bobot antar dimensi → perangkingan.
 - **Antarmuka:** Streamlit (navigasi sidebar, bobot dinamis, tombol eksekusi).
 - **Mata kuliah:** Praktikum SCPK 2025/2026.
-- **Kelompok:** Bintang Ramadhan (123240073) · Arsyadi Indra Hasan P. (123240062).
+- **Kelompok:** Bintang Ramadhan (123240073) - Arsyadi Indra Hasan P. (123240062).
+- **Live web:** [spk-kesehatan-mental.streamlit.app](https://spk-kesehatan-mental.streamlit.app)
 
 ## Struktur
 
