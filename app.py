@@ -42,7 +42,7 @@ TERM_COLOR = {"Rendah": C["rendah"], "Sedang": C["sedang"], "Tinggi": C["tinggi"
 TERM_FILL = {"Rendah": "rgba(138,177,125,.12)", "Sedang": "rgba(233,196,106,.12)",
              "Tinggi": "rgba(231,111,81,.12)"}
 
-st.set_page_config(page_title="SPK Kesehatan Mental Mahasiswa", page_icon="🧠",
+st.set_page_config(page_title="SPK Kesehatan Mental Mahasiswa",
                    layout="wide", initial_sidebar_state="expanded")
 
 st.markdown(
@@ -143,7 +143,7 @@ def clabel(k):
 # --------------------------------------------------------------------------- #
 with st.sidebar:
     st.markdown(
-        f'<div style="font-weight:800;font-size:1.05rem;color:{C["primary_dark"]}">🧠 SPK Kesehatan Mental</div>'
+        f'<div style="font-weight:800;font-size:1.05rem;color:{C["primary_dark"]}">SPK Kesehatan Mental</div>'
         f'<div style="color:{C["muted"]};font-size:.78rem;margin-bottom:14px">Fuzzy Mamdani · Streamlit</div>',
         unsafe_allow_html=True)
     page = st.radio("Navigasi", ["Halaman Data", "Hitung SPK", "Profil Kelompok"],
